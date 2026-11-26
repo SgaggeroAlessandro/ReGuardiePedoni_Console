@@ -6,44 +6,37 @@ using System.Threading.Tasks;
 
 namespace ReGuardiePedoni_Console
 {
-    public class RispostaEventArgs : EventArgs
-    {
-        public string Testo { get; }
-        public RispostaEventArgs(string testo)
-        {
-            Testo = testo;
-        }
-    }
-
-
     public abstract class CPersonaggio
     {
         public string Nome { get; }
-        public CPersonaggio(string Nome)
+
+        public CPersonaggio(string nomePersonaggio)
         {
-            this.Nome = Nome;
+            Nome = nomePersonaggio;
         }
 
-        public event EventHandler<RispostaEventArgs> Risposta;
-        public event EventHandler Catturato;
-        protected void Comunica(string testo)
+        public event EventHandler<string> Messaggio;
+
+        protected void Comunica(string frase)
         {
-            if (Risposta != null)
+            if (Messaggio != null)
             {
-                Risposta.Invoke(this, new RispostaEventArgs(testo));
+                Messaggio.Invoke(this, frase);
             }
         }
 
-        public abstract void OnAttaccoRe(object sender, EventArgs e);
-        public virtual void OnCattura(object sender, string nome)
+        public abstract void OnAttaccoAlRe(object sender, EventArgs e);
+
+        public virtual void OnCattura(object sender, string nomeCatturato)
         {
-            if (nome != Nome)
+            if (nomeCatturato != Nome)
             {
                 return;
             }
-            if (Catturato != null)
+            if (sender is CGestione mittenteGestione)
             {
-                Catturato.Invoke(this, EventArgs.Empty);
+                mittenteGestione.AttaccoAlRe -= OnAttaccoAlRe;
+                mittenteGestione.Cattura -= OnCattura;
             }
         }
     }

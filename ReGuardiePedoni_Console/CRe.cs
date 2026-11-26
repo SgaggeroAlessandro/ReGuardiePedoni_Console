@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
 //Comunica($"Il re {Nome} ");
 //Comunica scatena l'evento
 //gli eventi possono essere scatenati solo nella classe che gli dichiara, nemmeno nelle sottoclassi
@@ -15,11 +14,9 @@ namespace ReGuardiePedoni_Console
     {
         public CRe(string nome) : base(nome) { }
 
-        public override void OnAttaccoRe(object sender, EventArgs e)
+        public override void OnAttaccoAlRe(object sender, EventArgs e)
         {
-            string testo = $"Il Re {Nome} è sotto attacco";
-            File.AppendAllText("output.txt", testo + "\n");
-            Comunica(testo);
+            base.Comunica($"Il re {Nome} è sotto attacco");
         }
 
         

@@ -12,7 +12,7 @@ namespace ReGuardiePedoni_Console
     {
         public CGuardia(string nome) : base(nome) { }
 
-        public override void OnAttaccoRe(object sender, EventArgs e)
+        public override void OnAttaccoAlRe(object sender, EventArgs e)
         {
             Comunica($"La Guardia {Nome} sta difendendo");
         }

@@ -10,7 +10,7 @@ namespace ReGuardiePedoni_Console
     {
         public CPedone(string nome) : base(nome) { }
 
-        public override void OnAttaccoRe(object sender, EventArgs e)
+        public override void OnAttaccoAlRe(object sender, EventArgs e)
         {
             Comunica($"Il Pedone {Nome} si sta preparando");
         }
