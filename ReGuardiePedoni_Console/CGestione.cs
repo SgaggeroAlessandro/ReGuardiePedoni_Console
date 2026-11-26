@@ -18,27 +18,40 @@ namespace ReGuardiePedoni_Console
         public int Prossimo { get; private set; }
         public bool Finito { get; private set; }
 
-        public event EventHandler Attacco;
+        public event EventHandler AttaccoRe;
+
+        public event EventHandler<string> Cattura;
         public event EventHandler<RispostaEventArgs> Messaggio;
 
-        protected virtual void OnAttacco(EventArgs e)
-        {
-            if (Attacco != null)
-            {
-                Attacco.Invoke(this, e);
-            }
-        }
-
-        protected virtual void OnMessaggio(RispostaEventArgs e)
+        protected void Comunica(string testo)
         {
             if (Messaggio != null)
             {
-                Messaggio.Invoke(this, e);
+                Messaggio.Invoke(this, new RispostaEventArgs(testo));
             }
         }
+
         private void Personaggio_Risposta(object sender, RispostaEventArgs e)
         {
-            OnMessaggio(e);
+            Comunica(e.Testo);
+        }
+
+
+        private void Personaggio_Catturato(object sender, EventArgs e)
+        {
+            CGuardia g = sender as CGuardia;
+            CPedone p = sender as CPedone;
+
+            if (g != null)
+            {
+                Disiscrivi(g);
+                Guardie.Remove(g);
+            }
+            else if (p != null)
+            {
+                Disiscrivi(p);
+                Pedoni.Remove(p);
+            }
         }
 
         public void Carica(string percorso)
@@ -75,11 +88,11 @@ namespace ReGuardiePedoni_Console
             }
 
             List<string> lista = new List<string>();
-            for(int i = 3; i< righe.Length && lista.Count < 100; i++)
+            for (int i = 3; i < righe.Length && lista.Count < 100; i++)
             {
                 string r = righe[i].Trim();
                 lista.Add(r);
-                if(r == "End")
+                if (r == "End")
                 {
                     break;
                 }
@@ -89,7 +102,7 @@ namespace ReGuardiePedoni_Console
 
         public void EseguiProssimo()
         {
-            if(Finito == true || Prossimo >= Comandi.Length)
+            if (Finito == true || Prossimo >= Comandi.Length)
             {
                 return;
             }
@@ -97,83 +110,71 @@ namespace ReGuardiePedoni_Console
             Prossimo++;
         }
 
-        public void Esegui(string comando)
+        public bool Esegui(string comando)
         {
-            OnMessaggio(new RispostaEventArgs("> " + comando));
+            comando = comando.Trim();
+            Comunica("> " + comando);
 
-            string[] parti = comando.Trim().Split(' ');
-
-            if (parti.Length == 2 && parti[0] == "Attacca" && parti[1] == "Re")
+            if (comando == "Attacca Re")
             {
-                OnAttacco(EventArgs.Empty);
-            }else if(parti.Length == 2 && parti[0] == "Cattura")
+                if (AttaccoRe != null)
+                {
+                    AttaccoRe.Invoke(this, EventArgs.Empty);
+                }
+                return true;
+            }
+
+            if (comando.StartsWith("Cattura "))
             {
-                CGuardia g = null;
-                foreach (CGuardia x in Guardie)
+                // "Cattura " sono 8 caratteri: il nome inizia dalla posizione 8
+                string nome = comando.Substring(8).Trim();
+                if (Cattura != null)
                 {
-                    if (x.Nome == parti[1])
-                    {
-                        g = x;
-                        break;
-                    }
+                    Cattura.Invoke(this, nome);
                 }
+                return true;
+            }
 
-                CPedone p = null;
-                foreach (CPedone y in Pedoni)
-                {
-                    if (y.Nome == parti[1])
-                    {
-                        p = y;
-                        break;
-                    }
-                }
-
-                if(g != null)
-                {
-                    Disiscrivi(g);
-                    Guardie.Remove(g);
-
-                }else if(p != null)
-                {
-                    Disiscrivi(p);
-                    Pedoni.Remove(p);
-                }
-            }else if(parti.Length == 1 && parti[0] == "End")
+            if (comando == "End")
             {
-                OnMessaggio(new RispostaEventArgs("Simulazione terminata"));
+                Comunica("Simulazione terminata");
                 Finito = true;
+                return true;
             }
-            else
-            {
-                OnMessaggio(new RispostaEventArgs("Comando non valido"));
-            }
+
+            Comunica("Comando non valido");
+            return false;
         }
 
         private void Iscrivi(CPersonaggio p)
         {
-            Attacco += p.Gestione_Attacco;
+            AttaccoRe += p.OnAttaccoRe;
+            Cattura += p.OnCattura;
             p.Risposta += Personaggio_Risposta;
+            p.Catturato += Personaggio_Catturato;
         }
 
         private void Disiscrivi(CPersonaggio p)
         {
-            Attacco -= p.Gestione_Attacco;
+            AttaccoRe -= p.OnAttaccoRe;
+            Cattura -= p.OnCattura;
             p.Risposta -= Personaggio_Risposta;
+            p.Catturato -= Personaggio_Catturato;
         }
 
         private void Pulisci()
         {
-            if(Re != null)
+            if (Re != null)
             {
                 Disiscrivi(Re);
                 Re = null;
             }
-            while(Guardie.Count > 0)
+            while (Guardie.Count > 0)
             {
                 Disiscrivi(Guardie[0]);
                 Guardie.RemoveAt(0);
             }
-            while(Pedoni.Count > 0)
+            while (Pedoni.Count > 0)
             {
                 Disiscrivi(Pedoni[0]);
                 Pedoni.RemoveAt(0);
@@ -182,5 +183,6 @@ namespace ReGuardiePedoni_Console
             Prossimo = 0;
             Finito = false;
         }
+
     }
 }

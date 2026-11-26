@@ -3,16 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
+//Comunica($"Il pedone {Nome} si sta preparando");
 namespace ReGuardiePedoni_Console
 {
     public class CPedone : CPersonaggio
     {
         public CPedone(string nome) : base(nome) { }
 
-        public override void Gestione_Attacco(object sender, EventArgs e)
+        public override void OnAttaccoRe(object sender, EventArgs e)
         {
-            OnRisposta(new RispostaEventArgs($"Il Pedone {Nome} si sta preparando"));
+            Comunica($"Il Pedone {Nome} si sta preparando");
         }
     }
 }

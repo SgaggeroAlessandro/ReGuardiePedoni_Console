@@ -4,15 +4,17 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+//Comunica($"La guardia{Nome} ");
+
 namespace ReGuardiePedoni_Console
 {
     public class CGuardia : CPersonaggio
     {
         public CGuardia(string nome) : base(nome) { }
 
-        public override void Gestione_Attacco(object sender, EventArgs e)
+        public override void OnAttaccoRe(object sender, EventArgs e)
         {
-            OnRisposta(new RispostaEventArgs($"La Guardia {Nome} sta difendendo"));
+            Comunica($"La Guardia {Nome} sta difendendo");
         }
     }
 }

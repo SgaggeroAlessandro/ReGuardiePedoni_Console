@@ -25,14 +25,26 @@ namespace ReGuardiePedoni_Console
         }
 
         public event EventHandler<RispostaEventArgs> Risposta;
-        protected virtual void OnRisposta(RispostaEventArgs e)
+        public event EventHandler Catturato;
+        protected void Comunica(string testo)
         {
-            if(Risposta != null)
+            if (Risposta != null)
             {
-                Risposta.Invoke(this, e);
+                Risposta.Invoke(this, new RispostaEventArgs(testo));
             }
         }
 
-        public abstract void Gestione_Attacco(object sender, EventArgs e);
+        public abstract void OnAttaccoRe(object sender, EventArgs e);
+        public virtual void OnCattura(object sender, string nome)
+        {
+            if (nome != Nome)
+            {
+                return;
+            }
+            if (Catturato != null)
+            {
+                Catturato.Invoke(this, EventArgs.Empty);
+            }
+        }
     }
 }
